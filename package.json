@@ -1,0 +1,35 @@
+{
+  "name": "electron-app",
+  "version": "0.1.0",
+  "description": "Electron-vue app.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron main.js",
+    "dev": "webpack --mode development",
+    "watch": "cross-env NODE_ENV=development node_modules/webpack/bin/webpack.js --watch --progress --hide-modules --config=webpack.config.js --mode development"
+  },
+  "keywords": [],
+  "author": "Vlad",
+  "license": "ISC",
+  "dependencies": {
+    "skeleton-css": "^2.0.4",
+    "vue": "^2.5.16"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.4",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-preset-env": "^1.6.1",
+    "cross-env": "^5.1.4",
+    "css-loader": "^0.28.11",
+    "electron": "^1.8.4",
+    "node-sass": "^4.7.2",
+    "sass-loader": "^6.0.7",
+    "vue-loader": "^14.2.1",
+    "vue-template-compiler": "^2.5.16",
+    "webpack": "^4.2.0",
+    "webpack-cli": "^2.0.13",
+    "webpack-dev-server": "^3.1.1"
+  }
+}
