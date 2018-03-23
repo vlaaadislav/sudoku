@@ -1,11 +1,18 @@
 <template>
-    <div class="sudoku">
-        <table class="sudoku-table">
-            <tr class="sudoku-row" v-for="row in field">
-                <td class="sudoku-data" v-for="item in row">{{ item }}</td>
-            </tr>
-        </table>
-        <button @click="randomize">Randomize</button>
+    <div id="app">
+        <div class="sudoku">
+            <table class="sudoku-table">
+                <tr class="sudoku-row" v-for="row in field">
+                    <td class="sudoku-data" v-for="item in row">{{ item }}</td>
+                </tr>
+            </table>
+            <div class="settings">
+
+            </div>
+        </div>
+        <div class="button-group">
+            <button class="btn" @click="randomize">Randomize</button>
+        </div>
     </div>
 </template>
 
@@ -62,8 +69,6 @@
                     }
                 }
 
-                console.log(newField);
-
                 this.field = newField;
             },
             shuffle(a) {
@@ -81,10 +86,28 @@
 </script>
 
 <style lang="scss">
-    @import '~skeleton-css/css/normalize.css';
-    @import '~skeleton-css/css/skeleton.css';
+    body {
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+        user-select: none;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+    }
+
+    #app {
+        width: inherit;
+        height: inherit;
+    }
+
+    .sudoku {
+        display: flex;
+    }
 
     .sudoku-table {
+        width: 85vw;
+        height: 90vh;
         border: 4px solid black;
         border-collapse: collapse;
         text-align: center;
@@ -97,8 +120,6 @@
         }
 
         .sudoku-data {
-            width: 25px;
-            height: 25px;
             border-right: 1px dotted black;
             border-bottom: 1px solid black;
 
@@ -107,4 +128,77 @@
             }
         }
     }
+
+    .settings {
+        border: 4px solid black;
+        width: 15vw;
+    }
+
+    .button-group {
+        display: flex;
+    }
+
+    .btn {
+        flex: 1;
+    }
+
+    /* skeleton button */
+    /* Buttons
+–––––––––––––––––––––––––––––––––––––––––––––––––– */
+    .button,
+    button,
+    input[type="submit"],
+    input[type="reset"],
+    input[type="button"] {
+        display: inline-block;
+        height: 38px;
+        padding: 0 30px;
+        color: #555;
+        text-align: center;
+        font-size: 11px;
+        font-weight: 600;
+        line-height: 38px;
+        letter-spacing: .1rem;
+        text-transform: uppercase;
+        text-decoration: none;
+        white-space: nowrap;
+        background-color: transparent;
+        border-radius: 4px;
+        border: 1px solid #bbb;
+        cursor: pointer;
+        box-sizing: border-box; }
+    .button:hover,
+    button:hover,
+    input[type="submit"]:hover,
+    input[type="reset"]:hover,
+    input[type="button"]:hover,
+    .button:focus,
+    button:focus,
+    input[type="submit"]:focus,
+    input[type="reset"]:focus,
+    input[type="button"]:focus {
+        color: #333;
+        border-color: #888;
+        outline: 0; }
+    .button.button-primary,
+    button.button-primary,
+    input[type="submit"].button-primary,
+    input[type="reset"].button-primary,
+    input[type="button"].button-primary {
+        color: #FFF;
+        background-color: #33C3F0;
+        border-color: #33C3F0; }
+    .button.button-primary:hover,
+    button.button-primary:hover,
+    input[type="submit"].button-primary:hover,
+    input[type="reset"].button-primary:hover,
+    input[type="button"].button-primary:hover,
+    .button.button-primary:focus,
+    button.button-primary:focus,
+    input[type="submit"].button-primary:focus,
+    input[type="reset"].button-primary:focus,
+    input[type="button"].button-primary:focus {
+        color: #FFF;
+        background-color: #1EAEDB;
+        border-color: #1EAEDB; }
 </style>
