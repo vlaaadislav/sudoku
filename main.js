@@ -3,6 +3,7 @@ const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
 const Menu = electron.Menu;
 const MenuItem = electron.MenuItem;
+const debug = true;
 
 let mainWindow;
 
@@ -66,16 +67,20 @@ function createMenu() {
             role: 'help',
             submenu: [
                 {
-                    label: 'Learn More',
-                    click() { require('electron').shell.openExternal('https://electronjs.org') }
-                },
-                {
                     label: 'Source Code',
                     click() { require('electron').shell.openExternal('https://github.com/vlaaadislav/sudoku') }
+                },
+                {
+                    label: 'Learn More',
+                    click() { require('electron').shell.openExternal('https://electronjs.org') }
                 }
             ]
         }
     ];
+
+    if (debug) {
+        template[template.length - 1].submenu.push({ role: 'toggledevtools' });
+    }
 
     const menu = Menu.buildFromTemplate(template);
 

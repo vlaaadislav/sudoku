@@ -4,8 +4,8 @@
             <div class="col-10">
                 <table class="table table-bordered">
                     <tr class="sudoku-row" v-for="(row, rowIndex) in showedField">
-                        <td :class="item ? test(rowIndex, itemIndex): 'empty'" v-for="(item, itemIndex) in row" @click="setValue(rowIndex, itemIndex)">
-                            {{ item || '-' }}
+                        <td :class="item ? test(rowIndex, itemIndex) : 'empty'" v-for="(item, itemIndex) in row" @click="setValue(rowIndex, itemIndex)">
+                            {{ item || '9' }}
                         </td>
                     </tr>
                 </table>
@@ -13,7 +13,7 @@
 
             <div class="col">
                 <table class="table table-bordered">
-                    <tr v-for="choice in values">
+                    <tr v-for="choice in template">
                         <td class="page-item" :class="selectedValue === choice ? 'bg-info': ''" @click="selectValue(choice)">{{ choice }}</td>
                     </tr>
                 </table>
@@ -37,24 +37,28 @@
             return {
                 fieldSize: 9,
                 cellSize: 3,
+                template: [1, 2, 3, 4, 5, 6, 7, 8, 9],
                 field: [],
                 showedField: [],
-                values: [1, 2, 3, 4, 5, 6, 7, 8, 9],
-                selectedValue: null
+                selectedValue: null,
+                gameStatus: 'inProgress'
             }
         },
         methods: {
             generateField() {
-                const template = this.values.slice();
                 const res = [];
                 for (let i = 0; i < this.fieldSize; i++) {
                     // offset = +3 on each line + 1 each 3row
                     let offset = (i % this.cellSize) * this.cellSize + Math.floor(i / this.cellSize);
-                    res.push(this.getArrayOffset(template, offset));
+                    res.push(this.getOffsetedArray(this.template, offset));
                 }
                 return res;
             },
-            hideFields(qty = 60) {
+            getOffsetedArray(a, offset = 0) {
+                let copy = a.slice();
+                return copy.splice(offset).concat(copy);
+            },
+            hideFields(qty = this.getRandomInt(20, 60)) {
                 const showedField = this.copy(this.field);
                 while (qty > 0) {
                     let row = this.getRandomInt();
@@ -102,15 +106,18 @@
                     return;
                 }
                 this.$set(this.showedField[row], cell, this.selectedValue);
+
+                if (this.gameStatus !== 'inProgress') {
+                    return;
+                }
+
+                this.checkEndGame(this.test(row, cell) && 'lost');
             },
             selectValue(value) {
                 this.selectedValue = this.selectedValue !== value ? value : null;
             },
-            getArrayOffset(a, offset = 0) {
-                let copy = a.slice();
-                return copy.splice(offset).concat(copy);
-            },
             randomize() {
+                this.gameStatus = 'inProgress';
                 this.randomizeRows();
                 this.randomizeColumns()
             },
@@ -152,6 +159,19 @@
             },
             copy(o) {
                 return JSON.parse(JSON.stringify(o));
+            },
+            checkEndGame(lostStatus) {
+                if (lostStatus) {
+                    this.gameStatus = lostStatus;
+                    return this.lost();
+                }
+                this.showedField.find((item) => item.includes(null)) || this.win();
+            },
+            lost() {
+
+            },
+            win() {
+
             }
         },
         created() {
@@ -167,11 +187,15 @@
     @import "~bootstrap/dist/css/bootstrap-reboot.css";
 
     body {
+        height: 100vh;
+        width: 100%;
+        padding: 0;
+        margin: 0;
         user-select: none;
     }
 
     .sudoku {
-        margin-top: 10px;
+        padding-top: 10px;
     }
 
     .table td {
