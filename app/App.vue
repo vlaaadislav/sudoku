@@ -41,11 +41,12 @@
                 field: [],
                 showedField: [],
                 selectedValue: null,
-                gameStatus: 'inProgress'
+                gameStatus: ''
             }
         },
         methods: {
             generateField() {
+                this.gameStatus = 'inProgress';
                 const res = [];
                 for (let i = 0; i < this.fieldSize; i++) {
                     // offset = +3 on each line + 1 each 3row
@@ -163,9 +164,11 @@
             checkEndGame(lostStatus) {
                 if (lostStatus) {
                     this.gameStatus = lostStatus;
-                    return this.lost();
                 }
-                this.showedField.find((item) => item.includes(null)) || this.win();
+
+                if (!this.showedField.find((item) => item.includes(null))) {
+                    this.gameStatus = 'win';
+                }
             },
             lost() {
 
@@ -177,14 +180,29 @@
         created() {
             this.field = this.generateField();
             this.showedField = this.hideFields();
+        },
+        watch: {
+            gameStatus() {
+                switch (this.gameStatus) {
+                    case 'inProgress':
+                        document.body.style.backgroundColor = 'white';
+                        break;
+                    case 'win':
+                        document.body.style.backgroundColor = 'pink';
+                        break;
+                    case  'lost':
+                        document.body.style.backgroundColor = 'red';
+                        break;
+                }
+            }
         }
     }
 </script>
 
 <style lang="scss">
-    @import "~bootstrap/dist/css/bootstrap.css";
-    @import "~bootstrap/dist/css/bootstrap-grid.css";
-    @import "~bootstrap/dist/css/bootstrap-reboot.css";
+    @import "~bootstrap/scss/bootstrap.scss";
+    @import "~bootstrap/scss/bootstrap-grid.scss";
+    @import "~bootstrap/scss/bootstrap-reboot.scss";
 
     body {
         height: 100vh;
@@ -206,5 +224,21 @@
     .empty {
         color: transparent;
         cursor: pointer !important;
+    }
+
+    table {
+        border: 2px solid $info !important;
+    }
+
+    table tr {
+        &:nth-child(3n):not(:last-child) {
+            border-bottom: 2px solid $info;
+        }
+
+        & td {
+            &:nth-child(3n):not(:last-child) {
+                border-right: 2px solid $info;
+            }
+        }
     }
 </style>
