@@ -1,5 +1,5 @@
 <template>
-    <div class="container">
+    <div class="sudoku container">
         <div class="row">
             <div class="col-10">
                 <table class="table table-bordered">
@@ -168,6 +168,10 @@
 
     body {
         user-select: none;
+    }
+
+    .sudoku {
+        margin-top: 10px;
     }
 
     .table td {
