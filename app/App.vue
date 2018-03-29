@@ -1,18 +1,19 @@
 <template>
-    <div id="app">
-        <div class="sudoku">
+    <div class="sudoku">
+        <div class="tables">
             <table class="sudoku-table">
-                <tr class="sudoku-row" v-for="row in field">
-                    <td class="sudoku-data" v-for="item in row">{{ item }}</td>
+                <tr class="sudoku-row" v-for="(row, rowIndex) in showedField">
+                    <td class="sudoku-data" :class="item ? test(rowIndex, itemIndex): ''" v-for="(item, itemIndex) in row" @click="setValue(rowIndex, itemIndex)">{{ item }}</td>
                 </tr>
             </table>
-            <div class="settings">
-
-            </div>
+            <table class="choices">
+                <tr v-for="choice in values">
+                    <td class="choice" :class="selectedValue === choice ? 'active': ''" @click="selectValue(choice)">{{ choice }}</td>
+                </tr>
+            </table>
         </div>
-        <div class="button-group">
-            <button class="btn" @click="randomize">Randomize</button>
-        </div>
+        <button @click="randomize">Randomize</button>
+        <button @click="showAnswer">Show Answer</button>
     </div>
 </template>
 
@@ -22,21 +23,74 @@
             return {
                 fieldSize: 9,
                 cellSize: 3,
-                field: []
+                field: [],
+                showedField: [],
+                values: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+                selectedValue: null
             }
         },
         methods: {
             generateField() {
-                const template = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+                const template = this.values.slice();
                 const res = [];
-
                 for (let i = 0; i < this.fieldSize; i++) {
                     // offset = +3 on each line + 1 each 3row
                     let offset = (i % this.cellSize) * this.cellSize + Math.floor(i / this.cellSize);
                     res.push(this.getArrayOffset(template, offset));
                 }
-
                 return res;
+            },
+            hideFields(qty = 60) {
+                const showedField = this.copy(this.field);
+                while (qty > 0) {
+                    let row = this.getRandomInt();
+                    let cell = this.getRandomInt();
+                    if (!showedField[row][cell]) {
+                        continue;
+                    }
+                    showedField[row][cell] = null;
+                    qty -= 1;
+                }
+                return showedField;
+            },
+            test(row, col) {
+                const testedValue = this.showedField[row][col];
+
+                // test row and column
+                for (let i = 0; i < this.fieldSize; i++) {
+                    if (this.showedField[row][i] === testedValue && i !== col) {
+                        return 'error';
+                    }
+
+                    if (this.showedField[i][col] === testedValue && i !== row) {
+                        return 'error';
+                    }
+                }
+
+                //test cell
+                // интервал рядов
+                let rowMin = row - (row % this.cellSize);
+                let rowMax = rowMin + this.cellSize - 1;
+                // интервал колонок
+                let colMin = col - (col % this.cellSize);
+                let colMax = colMin + this.cellSize - 1;
+
+                for (let i = rowMin; i <= rowMax; i++) {
+                    for (let j = colMin; j <= colMax; j++) {
+                        if (testedValue === this.showedField[i][j] && (i !== row && j !== col)) {
+                            return 'error';
+                        }
+                    }
+                }
+            },
+            setValue(row, cell) {
+                if (this.showedField[row][cell] || !this.selectedValue) {
+                    return;
+                }
+                this.$set(this.showedField[row], cell, this.selectedValue);
+            },
+            selectValue(value) {
+                this.selectedValue = this.selectedValue !== value ? value : null;
             },
             getArrayOffset(a, offset = 0) {
                 let copy = a.slice();
@@ -44,7 +98,10 @@
             },
             randomize() {
                 this.randomizeRows();
-                this.randomizeColumns();
+                this.randomizeColumns()
+            },
+            showAnswer() {
+                this.showedField = this.field;
             },
             randomizeRows() {
                 for (let i = 0; i < this.fieldSize; i += this.cellSize) {
@@ -55,12 +112,10 @@
             randomizeColumns() {
                 const newField = this.field.slice();
                 let order = [];
-
                 for (let i = 0; i < this.fieldSize; i += this.cellSize) {
                     order.push(i);
                 }
                 order = this.shuffle(order);
-
                 // order: [0, 3, 7]
                 for (let cell of order) {
                     for (let item of newField) {
@@ -68,8 +123,8 @@
                         item.splice(cell, this.cellSize, ...newCell);
                     }
                 }
-
                 this.field = newField;
+                this.showedField = this.hideFields();
             },
             shuffle(a) {
                 for (let i = a.length - 1; i > 0; i--) {
@@ -77,128 +132,84 @@
                     [a[i], a[j]] = [a[j], a[i]];
                 }
                 return a;
+            },
+            getRandomInt(min = 0, max = this.fieldSize - 1) {
+                return Math.floor(Math.random() * (max - min + 1)) + min;
+            },
+            copy(o) {
+                return JSON.parse(JSON.stringify(o));
             }
         },
-        mounted() {
+        created() {
             this.field = this.generateField();
+            this.showedField = this.hideFields();
         }
     }
 </script>
 
 <style lang="scss">
-    body {
-        padding: 0;
-        margin: 0;
-        box-sizing: border-box;
-        user-select: none;
-        width: 100vw;
-        height: 100vh;
-        overflow: hidden;
+    .error {
+        background-color: red;
     }
 
-    #app {
-        width: inherit;
-        height: inherit;
+    .active {
+        background-color: green;
     }
 
-    .sudoku {
+    .tables {
         display: flex;
+        justify-content: center;
     }
 
     .sudoku-table {
-        width: 85vw;
-        height: 90vh;
-        border: 4px solid black;
+        border: 3px solid black;
         border-collapse: collapse;
-        text-align: center;
 
         .sudoku-row {
-
             &:nth-child(3n) {
-                border-bottom: 2px solid black;
+                border-bottom: 3px solid black;
             }
         }
 
         .sudoku-data {
             border-right: 1px dotted black;
             border-bottom: 1px solid black;
+            width: 30px;
+            height: 30px;
+
+            &:hover {
+                cursor: default;
+
+                &:empty {
+                    cursor: pointer;
+                }
+            }
 
             &:nth-child(3n) {
-                border-right: 2px solid black;
+                border-right: 3px solid black;
             }
         }
     }
 
-    .settings {
-        border: 4px solid black;
-        width: 15vw;
-    }
+    .choices {
+        border: 3px solid black;
+        border-collapse: collapse;
+        margin-left: 50px;
 
-    .button-group {
-        display: flex;
-    }
+        tr {
+            &:nth-child(3n) {
+                border-bottom: 3px solid black;
+            }
+        }
 
-    .btn {
-        flex: 1;
-    }
+        .choice {
+            border: 1px solid black;
+            width: 30px;
+            height: 30px;
 
-    /* skeleton button */
-    /* Buttons
-–––––––––––––––––––––––––––––––––––––––––––––––––– */
-    .button,
-    button,
-    input[type="submit"],
-    input[type="reset"],
-    input[type="button"] {
-        display: inline-block;
-        height: 38px;
-        padding: 0 30px;
-        color: #555;
-        text-align: center;
-        font-size: 11px;
-        font-weight: 600;
-        line-height: 38px;
-        letter-spacing: .1rem;
-        text-transform: uppercase;
-        text-decoration: none;
-        white-space: nowrap;
-        background-color: transparent;
-        border-radius: 4px;
-        border: 1px solid #bbb;
-        cursor: pointer;
-        box-sizing: border-box; }
-    .button:hover,
-    button:hover,
-    input[type="submit"]:hover,
-    input[type="reset"]:hover,
-    input[type="button"]:hover,
-    .button:focus,
-    button:focus,
-    input[type="submit"]:focus,
-    input[type="reset"]:focus,
-    input[type="button"]:focus {
-        color: #333;
-        border-color: #888;
-        outline: 0; }
-    .button.button-primary,
-    button.button-primary,
-    input[type="submit"].button-primary,
-    input[type="reset"].button-primary,
-    input[type="button"].button-primary {
-        color: #FFF;
-        background-color: #33C3F0;
-        border-color: #33C3F0; }
-    .button.button-primary:hover,
-    button.button-primary:hover,
-    input[type="submit"].button-primary:hover,
-    input[type="reset"].button-primary:hover,
-    input[type="button"].button-primary:hover,
-    .button.button-primary:focus,
-    button.button-primary:focus,
-    input[type="submit"].button-primary:focus,
-    input[type="reset"].button-primary:focus,
-    input[type="button"].button-primary:focus {
-        color: #FFF;
-        background-color: #1EAEDB;
-        border-color: #1EAEDB; }
+            &:hover {
+                cursor: pointer;
+            }
+        }
+    }
 </style>
