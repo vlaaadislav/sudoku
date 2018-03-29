@@ -12,6 +12,7 @@
   "author": "Vlad",
   "license": "ISC",
   "dependencies": {
+    "bootstrap": "^4.0.0",
     "vue": "^2.5.16"
   },
   "devDependencies": {

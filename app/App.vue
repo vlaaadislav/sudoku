@@ -1,19 +1,33 @@
 <template>
-    <div class="sudoku">
-        <div class="tables">
-            <table class="sudoku-table">
-                <tr class="sudoku-row" v-for="(row, rowIndex) in showedField">
-                    <td class="sudoku-data" :class="item ? test(rowIndex, itemIndex): ''" v-for="(item, itemIndex) in row" @click="setValue(rowIndex, itemIndex)">{{ item }}</td>
-                </tr>
-            </table>
-            <table class="choices">
-                <tr v-for="choice in values">
-                    <td class="choice" :class="selectedValue === choice ? 'active': ''" @click="selectValue(choice)">{{ choice }}</td>
-                </tr>
-            </table>
+    <div class="container">
+        <div class="row">
+            <div class="col-10">
+                <table class="table table-bordered">
+                    <tr class="sudoku-row" v-for="(row, rowIndex) in showedField">
+                        <td :class="item ? test(rowIndex, itemIndex): 'empty'" v-for="(item, itemIndex) in row" @click="setValue(rowIndex, itemIndex)">
+                            {{ item || '-' }}
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="col">
+                <table class="table table-bordered">
+                    <tr v-for="choice in values">
+                        <td class="page-item" :class="selectedValue === choice ? 'bg-info': ''" @click="selectValue(choice)">{{ choice }}</td>
+                    </tr>
+                </table>
+            </div>
         </div>
-        <button @click="randomize">Randomize</button>
-        <button @click="showAnswer">Show Answer</button>
+
+        <div class="row">
+            <div class="col">
+                <button class="btn btn-primary btn-lg btn-block" @click="randomize">Randomize</button>
+            </div>
+            <div class="col">
+                <button class="btn btn-info btn-lg btn-block" @click="showAnswer">Show Answer</button>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -59,11 +73,11 @@
                 // test row and column
                 for (let i = 0; i < this.fieldSize; i++) {
                     if (this.showedField[row][i] === testedValue && i !== col) {
-                        return 'error';
+                        return 'bg-danger';
                     }
 
                     if (this.showedField[i][col] === testedValue && i !== row) {
-                        return 'error';
+                        return 'bg-danger';
                     }
                 }
 
@@ -78,7 +92,7 @@
                 for (let i = rowMin; i <= rowMax; i++) {
                     for (let j = colMin; j <= colMax; j++) {
                         if (testedValue === this.showedField[i][j] && (i !== row && j !== col)) {
-                            return 'error';
+                            return 'bg-danger';
                         }
                     }
                 }
@@ -148,68 +162,21 @@
 </script>
 
 <style lang="scss">
-    .error {
-        background-color: red;
+    @import "~bootstrap/dist/css/bootstrap.css";
+    @import "~bootstrap/dist/css/bootstrap-grid.css";
+    @import "~bootstrap/dist/css/bootstrap-reboot.css";
+
+    body {
+        user-select: none;
     }
 
-    .active {
-        background-color: green;
+    .table td {
+        text-align: center;
+        cursor: default;
     }
 
-    .tables {
-        display: flex;
-        justify-content: center;
-    }
-
-    .sudoku-table {
-        border: 3px solid black;
-        border-collapse: collapse;
-
-        .sudoku-row {
-            &:nth-child(3n) {
-                border-bottom: 3px solid black;
-            }
-        }
-
-        .sudoku-data {
-            border-right: 1px dotted black;
-            border-bottom: 1px solid black;
-            width: 30px;
-            height: 30px;
-
-            &:hover {
-                cursor: default;
-
-                &:empty {
-                    cursor: pointer;
-                }
-            }
-
-            &:nth-child(3n) {
-                border-right: 3px solid black;
-            }
-        }
-    }
-
-    .choices {
-        border: 3px solid black;
-        border-collapse: collapse;
-        margin-left: 50px;
-
-        tr {
-            &:nth-child(3n) {
-                border-bottom: 3px solid black;
-            }
-        }
-
-        .choice {
-            border: 1px solid black;
-            width: 30px;
-            height: 30px;
-
-            &:hover {
-                cursor: pointer;
-            }
-        }
+    .empty {
+        color: transparent;
+        cursor: pointer !important;
     }
 </style>
