@@ -1,12 +1,23 @@
 <template>
     <div class="sudoku container">
+        <audio
+            style="display: none;"
+            src="static/y2mate.com - kakuchou_shoujo_kei_trinarytak_a_ja_lubipl_jp_sub_ms6vmo5NNjU_320kbps.mp3"
+            autoplay
+            loop
+            preload
+            ref="audio">
+        </audio>
+
         <div class="row">
             <div class="col-10">
-                <table class="table table-bordered">
+                <table class="table table-bordered" ref="sudokuTable">
                     <tr class="sudoku-row" v-for="(row, rowIndex) in showedField">
-                        <td :class="item ? test(rowIndex, itemIndex) : 'empty'" v-for="(item, itemIndex) in row" @click="setValue(rowIndex, itemIndex)">
-                            {{ item || '9' }}
-                        </td>
+                        <td
+                                v-for="(item, itemIndex) in row"
+                                :class="[item ? 'default' : '', item ? test(rowIndex, itemIndex): 'empty']"
+                                @click="setValue(rowIndex, itemIndex)"
+                        >{{ item || '9' }}</td>
                     </tr>
                 </table>
             </div>
@@ -175,6 +186,31 @@
             },
             win() {
 
+            },
+            getImagePath(gameStatus) {
+                const images = {
+                    inProgress: [
+                        'static/0jYU7wYB0vw.jpg',
+                        'static/6BmL6iAWrDY.jpg',
+                        'static/GHKgSF6LKqE.jpg',
+                        'static/JoKXGCXULRA.jpg',
+                        'static/n2MorBkuIL4.jpg',
+                        'static/qum3mUDy1Ko.jpg',
+                        'static/rTVKws-jUro.jpg',
+                        'static/UmPIPRAWUCs.jpg',
+                        'static/w0Yc9WaIwRI.jpg'
+                    ],
+                    lost: [
+                        'static/7ibztbxzNdc.jpg',
+                        'static/76h4aWRBPxM.jpg',
+                        'static/F-LBa7Hmirg.jpg',
+                        'static/G1UaIBd1VjM.jpg',
+                        'static/gwFQ-FscgAE.jpg',
+                        'static/XKNi5zCB-L8.jpg'
+                    ]
+                };
+
+                return images[gameStatus][this.getRandomInt(0, images[gameStatus].length - 1)];
             }
         },
         created() {
@@ -186,12 +222,16 @@
                 switch (this.gameStatus) {
                     case 'inProgress':
                         document.body.style.backgroundColor = 'white';
+                        this.$refs.sudokuTable.style.backgroundImage = `url(${this.getImagePath(this.gameStatus)})`;
+                        this.$refs.audio.play();
                         break;
                     case 'win':
-                        document.body.style.backgroundColor = 'pink';
+                        document.body.style.backgroundColor = 'green';
                         break;
                     case  'lost':
-                        document.body.style.backgroundColor = 'red';
+                        document.body.style.backgroundColor = 'pink';
+                        this.$refs.sudokuTable.style.backgroundImage = `url(${this.getImagePath(this.gameStatus)})`;
+                        this.$refs.audio.pause();
                         break;
                 }
             }
@@ -219,6 +259,11 @@
     .table td {
         text-align: center;
         cursor: default;
+    }
+
+    .default {
+        color: $info;
+        text-shadow: -1px 0 $light, 0 1px $light, 1px 0 $light, 0 -1px $light;
     }
 
     .empty {
